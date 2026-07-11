@@ -44,12 +44,12 @@ FROM dbo.ImageValidationResults;
 
 PRINT '';
 PRINT '=== 4. Auto-approval routing simulation (mirrors AutoApprovalPolicy) ===';
--- Value guardrail $150; confidence bands mirror the C# thresholds.
+-- Value guardrail Rs.5000; confidence bands mirror the C# thresholds.
 SELECT
     CASE
         WHEN ip.HoldingDays >= 10 THEN 'AUTO_APPROVE (expired -> return-to-seller)'
         WHEN r.Confidence < 0.60 THEN 'ESCALATE (low confidence)'
-        WHEN (15 + (ABS(CHECKSUM(ip.Id)) % 40) * 5) > 150 THEN 'HUMAN_REVIEW (high value)'
+        WHEN (999 + (ABS(CHECKSUM(ip.Id)) % 40) * 300) > 5000 THEN 'HUMAN_REVIEW (high value)'
         WHEN r.Confidence >= 0.85 THEN 'AUTO_APPROVE (confident)'
         ELSE 'HUMAN_REVIEW (medium band)'
     END AS Route,
@@ -60,7 +60,7 @@ GROUP BY
     CASE
         WHEN ip.HoldingDays >= 10 THEN 'AUTO_APPROVE (expired -> return-to-seller)'
         WHEN r.Confidence < 0.60 THEN 'ESCALATE (low confidence)'
-        WHEN (15 + (ABS(CHECKSUM(ip.Id)) % 40) * 5) > 150 THEN 'HUMAN_REVIEW (high value)'
+        WHEN (999 + (ABS(CHECKSUM(ip.Id)) % 40) * 300) > 5000 THEN 'HUMAN_REVIEW (high value)'
         WHEN r.Confidence >= 0.85 THEN 'AUTO_APPROVE (confident)'
         ELSE 'HUMAN_REVIEW (medium band)'
     END

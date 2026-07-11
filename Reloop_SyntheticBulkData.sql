@@ -62,7 +62,7 @@ SELECT
     0.50 + (n % 50) / 100.0,                          -- confidence 0.50..0.99
     n % 13,                                           -- holding days 0..12 (exercises 10-day clock)
     n % 101,                                          -- match score 0..100
-    CAST(15 + (n % 40) * 5 AS DECIMAL(10,2))          -- base price $15..$210 (exercises $150 guardrail)
+    CAST(999 + (n % 40) * 300 AS DECIMAL(10,2))       -- base price Rs.999..Rs.12,699 (exercises Rs.5000 guardrail)
 FROM Numbers;
 
 -- ---------- Packages ----------
@@ -135,7 +135,7 @@ SELECT
     END,
     conf,
     matchScore * 5.5,
-    matchScore * 5.5 * 0.026,
+    matchScore * 5.5 * 1.1,
     matchScore * 5.5 * 0.0037,
     'Synthetic local-demand match for load testing.',
     'synthetic-gen', 0
@@ -154,7 +154,7 @@ SELECT
     'SYN-DP' + CAST(k AS VARCHAR(7)),
     CHOOSE(k % 6 + 1, 'Chennai','Bangalore','Hyderabad','Mumbai','Delhi','Pune'),
     (k % 200) + 1,
-    ((k % 100) / 100.0),
+    CAST((k % 100) + 1 AS DECIMAL(5,2)),              -- demand score 1..100 (0-100 scale, matches curated data)
     'synthetic-gen', 0
 FROM DemandNums;
 
