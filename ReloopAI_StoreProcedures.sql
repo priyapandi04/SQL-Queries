@@ -75,7 +75,7 @@ BEGIN
     DECLARE @Id UNIQUEIDENTIFIER = NEWID();
     DECLARE @Now DATETIME2 = SYSUTCDATETIME();
 
-    INSERT INTO [dbo].[Returns]
+    INSERT INTO [dbo].[ImageValidationResults]
         ([Id], [ProductId], [ProductName], [Category], [ReturnReason],
          [Condition], [Eligibility], [Confidence], [Location], [ReturnDate],
          [CreatedAt], [IsDeleted])
@@ -142,7 +142,7 @@ BEGIN
         r.[Condition],
         r.[Eligibility]
     FROM [dbo].[InventoryPool] ip
-    INNER JOIN [dbo].[Returns] r ON r.[Id] = ip.[ReturnId] AND r.[IsDeleted] = 0
+    INNER JOIN [dbo].[ImageValidationResults] r ON r.[Id] = ip.[ReturnId] AND r.[IsDeleted] = 0
     WHERE ip.[IsDeleted] = 0
       AND ip.[Status] = 'Available'
       AND ip.[ProductId] = @ProductId
