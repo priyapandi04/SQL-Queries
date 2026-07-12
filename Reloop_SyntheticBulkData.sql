@@ -128,10 +128,13 @@ SELECT
     NEWID(), rrid, 'SYN-P' + CAST(n AS VARCHAR(7)),
     category + ' Item ' + CAST(n AS VARCHAR(7)),
     category, city, cond, matchScore,
+    -- Bands mirror MatchCalculator.DetermineRecommendation (80/60/40/20) exactly.
     CASE
-        WHEN matchScore >= 70 THEN 'SELL_LOCAL'
-        WHEN matchScore >= 40 THEN 'REDISTRIBUTE'
-        ELSE 'DISCOUNT_SELL'
+        WHEN matchScore >= 80 THEN 'SELL_LOCAL'
+        WHEN matchScore >= 60 THEN 'REDISTRIBUTE'
+        WHEN matchScore >= 40 THEN 'DISCOUNT_SELL'
+        WHEN matchScore >= 20 THEN 'WAREHOUSE_HOLD'
+        ELSE 'LIQUIDATE'
     END,
     conf,
     matchScore * 5.5,
