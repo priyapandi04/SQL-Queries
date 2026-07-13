@@ -17,6 +17,20 @@ SET QUOTED_IDENTIFIER ON;
 SET ANSI_NULLS ON;
 GO
 
+-- ---------- Schema migration: ensure persisted economics columns exist ----------
+-- Idempotent so existing DBs upgrade without dropping the table (INR triple-value).
+-- Kept in its own batch (GO) so later INSERTs can reference the new columns.
+IF COL_LENGTH('dbo.MatchAgentResults', 'NetValue') IS NULL
+BEGIN
+    ALTER TABLE dbo.MatchAgentResults ADD
+        [SalePrice]        DECIMAL(18,2) NOT NULL DEFAULT 0,
+        [ResaleMargin]     DECIMAL(18,2) NOT NULL DEFAULT 0,
+        [ResaleServiceFee] DECIMAL(18,2) NOT NULL DEFAULT 0,
+        [Co2Value]         DECIMAL(18,2) NOT NULL DEFAULT 0,
+        [NetValue]         DECIMAL(18,2) NOT NULL DEFAULT 0;
+END
+GO
+
 DECLARE @N INT = 2000;   -- synthetic packages / returns / validations to generate
 
 -- ---------- Purge previous synthetic run (children first) ----------
@@ -54,14 +68,44 @@ CREATE TABLE #Seed (
 INSERT INTO #Seed (n, pid, rrid, ivrid, city, category, reason, cond, eligible, conf, holdingDays, matchScore, basePrice)
 SELECT
     n, NEWID(), NEWID(), NEWID(),
-    CHOOSE(n % 6 + 1, 'Chennai','Bangalore','Hyderabad','Mumbai','Delhi','Pune'),
+    -- Weighted region volume: Chennai busiest -> Pune smallest (realistic hub spread).
+    CHOOSE(n % 10 + 1, 'Chennai','Chennai','Chennai','Bangalore','Bangalore','Hyderabad','Hyderabad','Mumbai','Delhi','Pune'),
     CHOOSE(n % 8 + 1, 'Apparel','Footwear','Electronics','Accessories','Home','Beauty','Toys','Sports'),
-    CHOOSE(n % 6 + 1, 'Size too small','Changed mind','Defective item','Wrong item shipped','Not as described','Damaged in transit'),
+    -- Return reason CORRELATED to category (~67% dominant + 33% spread) so each
+    -- category has a distinct systemic root cause the Root-Cause agent can surface.
+    CASE WHEN n % 3 = 0
+         THEN CHOOSE(n % 6 + 1, 'Size too small','Changed mind','Defective item','Wrong item shipped','Not as described','Damaged in transit')
+         ELSE CHOOSE(n % 8 + 1, 'Size too small','Size too small','Defective item','Not as described','Damaged in transit','Changed mind','Wrong item shipped','Not as described')
+    END,
     CHOOSE(n % 5 + 1, 'New','LikeNew','Good','Fair','Damaged'),
-    CASE WHEN n % 5 = 0 THEN 0 ELSE 1 END,          -- ~80% eligible
-    0.50 + (n % 50) / 100.0,                          -- confidence 0.50..0.99
-    n % 13,                                           -- holding days 0..12 (exercises 10-day clock)
-    n % 101,                                          -- match score 0..100
+    CASE WHEN n % 12 = 0 THEN 0 ELSE 1 END,           -- ~92% pass image validation
+    0.62 + (n % 38) / 100.0,                          -- confidence 0.62..0.99 (calibrated, never 0)
+    n % 11,                                           -- holding days 0..10 (day 10 = clock-expiry edge)
+    -- Match score: realistic funnel bands + per-region demand bonus + per-category
+    -- resale-demand offset, never 0. Base: 55% strong (>=70), 30% mid (50-68),
+    -- 15% soft (30-44). Region bonus lifts high-demand hubs (Bangalore/Mumbai).
+    -- Category offset (sums to ~0, so the global funnel holds) makes fast-reselling
+    -- lines (Electronics/Toys) score higher and hygiene-limited ones (Beauty/Home)
+    -- lower, so "Match Score by Segment" shows a real, differentiated spread.
+    (CASE
+        WHEN (CASE WHEN n % 20 <= 10 THEN 72 + (n % 27)
+                   WHEN n % 20 <= 16 THEN 50 + (n % 19)
+                   ELSE 30 + (n % 15) END
+              + CHOOSE(n % 10 + 1, 0,0,0, 14,14, 6,6, 10, 2, 4)
+              + CHOOSE(n % 8 + 1, 0, 4, 12, -2, -6, -10, 6, -4)) > 99
+        THEN 99
+        WHEN (CASE WHEN n % 20 <= 10 THEN 72 + (n % 27)
+                   WHEN n % 20 <= 16 THEN 50 + (n % 19)
+                   ELSE 30 + (n % 15) END
+              + CHOOSE(n % 10 + 1, 0,0,0, 14,14, 6,6, 10, 2, 4)
+              + CHOOSE(n % 8 + 1, 0, 4, 12, -2, -6, -10, 6, -4)) < 20
+        THEN 20
+        ELSE (CASE WHEN n % 20 <= 10 THEN 72 + (n % 27)
+                   WHEN n % 20 <= 16 THEN 50 + (n % 19)
+                   ELSE 30 + (n % 15) END
+              + CHOOSE(n % 10 + 1, 0,0,0, 14,14, 6,6, 10, 2, 4)
+              + CHOOSE(n % 8 + 1, 0, 4, 12, -2, -6, -10, 6, -4))
+     END),
     CAST(999 + (n % 40) * 300 AS DECIMAL(10,2))       -- base price Rs.999..Rs.12,699 (exercises Rs.5000 guardrail)
 FROM Numbers;
 
@@ -87,7 +131,16 @@ INSERT INTO dbo.ReturnRequests
     (Id, PackageId, Reason, Status, Location, CreatedAt, CreatedBy, IsDeleted)
 SELECT
     rrid, pid, reason,
-    CHOOSE(n % 4 + 1, 'Pending','Approved','Matched','ReturnToSeller'),
+    -- Status derived from the pipeline logic (never random): failed validation ->
+    -- Rejected; expired 10-day clock -> ReturnToSeller; strong match -> Matched;
+    -- mid match sold after markdown -> Diverted; otherwise still Eligible in pool.
+    CASE
+        WHEN eligible = 0      THEN 'Rejected'
+        WHEN holdingDays >= 10 THEN 'ReturnToSeller'
+        WHEN matchScore >= 70  THEN 'Matched'
+        WHEN matchScore >= 45  THEN 'Diverted'
+        ELSE 'Eligible'
+    END,
     city,
     DATEADD(DAY, -(n % 60), SYSUTCDATETIME()),
     'synthetic-gen', 0
@@ -123,7 +176,7 @@ WHERE eligible = 1;
 
 -- ---------- MatchAgentResults (matched, eligible subset) ----------
 INSERT INTO dbo.MatchAgentResults
-    (Id, ReturnRequestId, ProductId, ProductName, Category, Location, Condition, MatchScore, Recommendation, Confidence, DistanceSavedKm, CostSaved, Co2Saved, Explanation, CreatedBy, IsDeleted)
+    (Id, ReturnRequestId, ProductId, ProductName, Category, Location, Condition, MatchScore, Recommendation, Confidence, DistanceSavedKm, CostSaved, Co2Saved, SalePrice, ResaleMargin, ResaleServiceFee, Co2Value, NetValue, Explanation, CreatedAt, CreatedBy, IsDeleted)
 SELECT
     NEWID(), rrid, 'SYN-P' + CAST(n AS VARCHAR(7)),
     category + ' Item ' + CAST(n AS VARCHAR(7)),
@@ -137,13 +190,28 @@ SELECT
         ELSE 'LIQUIDATE'
     END,
     conf,
-    matchScore * 5.5,
-    matchScore * 5.5 * 1.1,
-    matchScore * 5.5 * 0.0037,
+    matchScore * 5.5 * 1.1,           -- DistanceSavedKm
+    matchScore * 5.5,                 -- CostSaved (reverse-freight avoided, INR)
+    matchScore * 5.5 * 0.0037,        -- Co2Saved (kg)
+    -- Persisted triple-value economics — exact RevenueCalculator formula (INR):
+    --   margin = price*0.20, serviceFee = price*0.12, co2Value = co2Kg*4, AI cost = 0.50/item.
+    basePrice,                                                    -- SalePrice
+    CAST(basePrice * 0.20 AS DECIMAL(18,2)),                     -- ResaleMargin
+    CAST(basePrice * 0.12 AS DECIMAL(18,2)),                     -- ResaleServiceFee
+    CAST(matchScore * 5.5 * 0.0037 * 4 AS DECIMAL(18,2)),        -- Co2Value
+    CAST(matchScore * 5.5                                        -- NetValue = freight + margin + fee + co2 - AI cost
+         + basePrice * 0.20
+         + basePrice * 0.12
+         + matchScore * 5.5 * 0.0037 * 4
+         - 0.5 AS DECIMAL(18,2)),
     'Synthetic local-demand match for load testing.',
+    -- CreatedAt spread over ~6 months so "Monthly Return Volume" draws a real trend.
+    -- Quadratic on (n % 27) => recent-weighted: volume grows toward the latest months
+    -- (max ~169 days back), telling the "returns scaling as ReLoop rolls out" story.
+    DATEADD(DAY, -((n % 27) * (n % 27) / 4), SYSUTCDATETIME()),
     'synthetic-gen', 0
 FROM #Seed
-WHERE eligible = 1 AND matchScore >= 40;
+WHERE eligible = 1 AND holdingDays < 10 AND matchScore >= 45;  -- only items actually diverted locally (Matched/Diverted)
 
 -- ---------- DemandHistory (unique ProductId+Region, ~300 rows) ----------
 ;WITH DemandNums AS (

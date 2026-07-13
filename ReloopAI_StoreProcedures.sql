@@ -193,6 +193,11 @@ CREATE OR ALTER PROCEDURE [dbo].[usp_SaveMatchResult]
     @DistanceSavedKm FLOAT,
     @CostSaved       FLOAT,
     @Co2Saved        FLOAT,
+    @SalePrice       DECIMAL(18,2) = 0,
+    @ResaleMargin    DECIMAL(18,2) = 0,
+    @ResaleServiceFee DECIMAL(18,2) = 0,
+    @Co2Value        DECIMAL(18,2) = 0,
+    @NetValue        DECIMAL(18,2) = 0,
     @Explanation     NVARCHAR(4000),
     @MatchDetailsJson NVARCHAR(MAX)
 AS
@@ -205,12 +210,16 @@ BEGIN
     INSERT INTO [dbo].[MatchAgentResults]
         ([Id], [ReturnRequestId], [ProductId], [ProductName], [Category],
          [Location], [Condition], [MatchScore], [Recommendation], [Confidence],
-         [DistanceSavedKm], [CostSaved], [Co2Saved], [Explanation], [MatchDetailsJson],
+         [DistanceSavedKm], [CostSaved], [Co2Saved],
+         [SalePrice], [ResaleMargin], [ResaleServiceFee], [Co2Value], [NetValue],
+         [Explanation], [MatchDetailsJson],
          [CreatedAt], [IsDeleted])
     VALUES
         (@Id, @ReturnRequestId, @ProductId, @ProductName, @Category,
          @Location, @Condition, @MatchScore, @Recommendation, @Confidence,
-         @DistanceSavedKm, @CostSaved, @Co2Saved, @Explanation, @MatchDetailsJson,
+         @DistanceSavedKm, @CostSaved, @Co2Saved,
+         @SalePrice, @ResaleMargin, @ResaleServiceFee, @Co2Value, @NetValue,
+         @Explanation, @MatchDetailsJson,
          @Now, 0);
 
     SELECT @Id AS Id;
@@ -257,19 +266,27 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
-    -- KPI Counts with real savings from MatchAgentResults
+    -- KPI Counts with real savings from MatchAgentResults.
+    -- Eligible = passed the resale gate (incl. Approved awaiting a match).
+    -- Diverted-from-warehouse = matched locally OR flagged Diverted; both avoid the return trip.
     SELECT
         COUNT(DISTINCT rr.[Id])                                           AS TotalReturns,
-        SUM(CASE WHEN rr.Status IN ('Eligible','Matched','Diverted') THEN 1 ELSE 0 END) AS EligibleReturns,
-        SUM(CASE WHEN rr.Status = 'Matched' THEN 1 ELSE 0 END)          AS LocalMatches,
+        SUM(CASE WHEN rr.Status IN ('Eligible','Approved','Matched','Diverted') THEN 1 ELSE 0 END) AS EligibleReturns,
+        SUM(CASE WHEN rr.Status IN ('Matched','Diverted') THEN 1 ELSE 0 END) AS LocalMatches,
         CASE
             WHEN COUNT(*) > 0
-            THEN ROUND(CAST(SUM(CASE WHEN rr.Status = 'Matched' THEN 1 ELSE 0 END) AS FLOAT) / COUNT(*) * 100, 2)
+            THEN ROUND(CAST(SUM(CASE WHEN rr.Status IN ('Matched','Diverted') THEN 1 ELSE 0 END) AS FLOAT) / COUNT(*) * 100, 2)
             ELSE 0
         END                                                               AS DiversionRate,
         ISNULL(SUM(mar.[DistanceSavedKm]), 0)                            AS DistanceSavedKm,
         ISNULL(SUM(mar.[CostSaved]), 0)                                  AS CostSaved,
-        ISNULL(SUM(mar.[Co2Saved]), 0)                                   AS Co2SavedKg
+        ISNULL(SUM(mar.[Co2Saved]), 0)                                   AS Co2SavedKg,
+        -- Full triple-value economics (INR): the hero "Total Value Recovered".
+        ISNULL(SUM(mar.[NetValue]), 0)                                   AS TotalValueRecovered,
+        ISNULL(SUM(mar.[ResaleMargin]), 0)                               AS ResaleMargin,
+        ISNULL(SUM(mar.[ResaleServiceFee]), 0)                           AS ResaleServiceFee,
+        ISNULL(SUM(mar.[Co2Value]), 0)                                   AS Co2Value,
+        ISNULL(SUM(CASE WHEN mar.[Id] IS NOT NULL THEN 0.5 ELSE 0 END), 0) AS AiCost
     FROM [dbo].[ReturnRequests] rr
     LEFT JOIN [dbo].[MatchAgentResults] mar ON mar.[ReturnRequestId] = rr.[Id] AND mar.[IsDeleted] = 0
     WHERE rr.[IsDeleted] = 0
@@ -367,18 +384,26 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
+    -- Eligible = passed the resale gate (incl. Approved awaiting a match).
+    -- Diverted-from-warehouse = matched locally OR flagged Diverted; both avoid the return trip.
     SELECT
         COUNT(DISTINCT rr.[Id])                                           AS TotalReturns,
-        SUM(CASE WHEN rr.Status IN ('Eligible','Matched','Diverted') THEN 1 ELSE 0 END) AS EligibleReturns,
-        SUM(CASE WHEN rr.Status = 'Matched' THEN 1 ELSE 0 END)          AS LocalMatches,
+        SUM(CASE WHEN rr.Status IN ('Eligible','Approved','Matched','Diverted') THEN 1 ELSE 0 END) AS EligibleReturns,
+        SUM(CASE WHEN rr.Status IN ('Matched','Diverted') THEN 1 ELSE 0 END) AS LocalMatches,
         CASE
             WHEN COUNT(*) > 0
-            THEN ROUND(CAST(SUM(CASE WHEN rr.Status = 'Matched' THEN 1 ELSE 0 END) AS FLOAT) / COUNT(*) * 100, 2)
+            THEN ROUND(CAST(SUM(CASE WHEN rr.Status IN ('Matched','Diverted') THEN 1 ELSE 0 END) AS FLOAT) / COUNT(*) * 100, 2)
             ELSE 0
         END                                                               AS DiversionRate,
         ISNULL(SUM(mar.[DistanceSavedKm]), 0)                            AS DistanceSavedKm,
         ISNULL(SUM(mar.[CostSaved]), 0)                                  AS CostSaved,
-        ISNULL(SUM(mar.[Co2Saved]), 0)                                   AS Co2SavedKg
+        ISNULL(SUM(mar.[Co2Saved]), 0)                                   AS Co2SavedKg,
+        -- Full triple-value economics (INR): the hero "Total Value Recovered".
+        ISNULL(SUM(mar.[NetValue]), 0)                                   AS TotalValueRecovered,
+        ISNULL(SUM(mar.[ResaleMargin]), 0)                               AS ResaleMargin,
+        ISNULL(SUM(mar.[ResaleServiceFee]), 0)                           AS ResaleServiceFee,
+        ISNULL(SUM(mar.[Co2Value]), 0)                                   AS Co2Value,
+        ISNULL(SUM(CASE WHEN mar.[Id] IS NOT NULL THEN 0.5 ELSE 0 END), 0) AS AiCost
     FROM [dbo].[ReturnRequests] rr
     LEFT JOIN [dbo].[MatchAgentResults] mar ON mar.[ReturnRequestId] = rr.[Id] AND mar.[IsDeleted] = 0
     WHERE rr.[IsDeleted] = 0
