@@ -512,3 +512,36 @@ PRINT '========================================';
 PRINT 'Verification Complete!';
 PRINT '========================================';
 GO
+
+
+INSERT INTO [dbo].[Buyers] (Hub, Name, Zone, DistanceKm, Delivery, Score) VALUES
+-- CHN
+('CHN', 'Arjun Sharma', 'T. Nagar, Chennai', 2.1, '2h 30min', 96),
+('CHN', 'Priya Krishnamurthy', 'Adyar, Chennai', 3.4, '3h 15min', 91),
+('CHN', 'Ravi Sundar', 'Velachery, Chennai', 5.2, '4h 00min', 87),
+('CHN', 'Meera Nair', 'Porur, Chennai', 7.8, '5h 30min', 82),
+('CHN', 'Karthik Rajan', 'Tambaram, Chennai', 9.1, '6h 00min', 78),
+-- BLR
+('BLR', 'Rohan Mehta', 'Indiranagar', 1.8, '2h 00min', 94),
+('BLR', 'Sneha Reddy', 'Koramangala', 3.1, '3h 00min', 88),
+('BLR', 'Vikram Nair', 'Whitefield', 6.2, '4h 30min', 83),
+('BLR', 'Anjali Singh', 'HSR Layout', 8.4, '5h 00min', 77),
+('BLR', 'Deepak Kumar', 'Electronic City', 11.2, '6h 30min', 71),
+-- MUM
+('MUM', 'Rahul Joshi', 'Bandra', 2.5, '2h 45min', 91),
+('MUM', 'Pooja Sharma', 'Andheri', 4.0, '3h 30min', 85),
+('MUM', 'Amit Patel', 'Powai', 7.1, '5h 00min', 79),
+('MUM', 'Kavita Desai', 'Thane', 9.3, '5h 45min', 74),
+('MUM', 'Suresh Iyer', 'Navi Mumbai', 12.0, '7h 00min', 68),
+-- DEL
+('DEL', 'Aditya Kapoor', 'Connaught Place', 3.2, '3h 15min', 86),
+('DEL', 'Neha Gupta', 'Lajpat Nagar', 5.8, '4h 30min', 79),
+('DEL', 'Rajesh Verma', 'Dwarka', 9.0, '5h 30min', 71),
+('DEL', 'Sunita Chauhan', 'Noida', 11.5, '6h 15min', 65),
+('DEL', 'Manoj Tiwari', 'Gurgaon', 14.2, '7h 30min', 59),
+-- HYD
+('HYD', 'Srinivas Rao', 'Hitech City', 2.2, '2h 15min', 93),
+('HYD', 'Lakshmi Prasad', 'Banjara Hills', 4.5, '3h 30min', 86),
+('HYD', 'Venkat Reddy', 'Madhapur', 6.8, '4h 45min', 80),
+('HYD', 'Padma Rao', 'Secunderabad', 9.5, '5h 30min', 73),
+('HYD', 'Ramu Naidu', 'Kukatpally', 11.8, '6h 45min', 67);

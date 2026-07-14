@@ -374,9 +374,9 @@ GO
 
 -- ======================================================================================================================================================
 
--- SP: Dashboard with REAL savings from persisted match results
--- Replaces estimated savings with actual agent-computed values
--- ============================================================
+---- SP: Dashboard with REAL savings from persisted match results
+---- Replaces estimated savings with actual agent-computed values
+---- ============================================================
 CREATE OR ALTER PROCEDURE [dbo].[usp_GetDashboardMetrics_v2]
     @FromDate DATETIME2 = NULL,
     @ToDate   DATETIME2 = NULL
@@ -409,5 +409,21 @@ BEGIN
     WHERE rr.[IsDeleted] = 0
       AND (@FromDate IS NULL OR rr.[CreatedAt] >= @FromDate)
       AND (@ToDate   IS NULL OR rr.[CreatedAt] <= @ToDate);
+END
+GO
+
+--====================
+CREATE or Alter PROCEDURE [dbo].[usp_GetBuyersByHub]
+    @Hub NVARCHAR(10)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT [Name], [Zone], 
+           CAST([DistanceKm] AS NVARCHAR(10)) + ' km' AS [Distance],
+           [Delivery], [Score]
+    FROM [dbo].[Buyers]
+    WHERE [Hub] = @Hub
+    ORDER BY [Score] DESC;
 END
 GO

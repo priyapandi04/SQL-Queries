@@ -179,3 +179,16 @@ CREATE INDEX [IX_MatchAgentResults_ReturnRequestId] ON [dbo].[MatchAgentResults]
 CREATE INDEX [IX_MatchAgentResults_ProductId] ON [dbo].[MatchAgentResults]([ProductId]) WHERE [IsDeleted] = 0;
 CREATE INDEX [IX_MatchAgentResults_Location_Category] ON [dbo].[MatchAgentResults]([Location], [Category]) WHERE [IsDeleted] = 0;
 CREATE INDEX [IX_MatchAgentResults_MatchScore] ON [dbo].[MatchAgentResults]([MatchScore]) WHERE [IsDeleted] = 0;
+
+--====================
+CREATE TABLE [dbo].[Buyers] (
+    [Id]          UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID() PRIMARY KEY,
+    [Hub]         NVARCHAR(10)     NOT NULL,
+    [Name]        NVARCHAR(100)    NOT NULL,
+    [Zone]        NVARCHAR(200)    NOT NULL,
+    [DistanceKm]  DECIMAL(5,1)     NOT NULL,
+    [Delivery]    NVARCHAR(20)     NOT NULL,
+    [Score]       INT              NOT NULL,
+    [CreatedAt]   DATETIME2        NOT NULL DEFAULT GETUTCDATE(),
+    INDEX IX_Buyers_Hub (Hub)
+);
