@@ -157,6 +157,12 @@ CREATE TABLE [dbo].[MatchAgentResults] (
     [DistanceSavedKm]   FLOAT            NOT NULL DEFAULT 0,
     [CostSaved]         FLOAT            NOT NULL DEFAULT 0,
     [Co2Saved]          FLOAT            NOT NULL DEFAULT 0,
+    -- Persisted triple-value economics (INR) — RevenueCalculator components.
+    [SalePrice]         DECIMAL(18,2)    NOT NULL DEFAULT 0,
+    [ResaleMargin]      DECIMAL(18,2)    NOT NULL DEFAULT 0,
+    [ResaleServiceFee]  DECIMAL(18,2)    NOT NULL DEFAULT 0,
+    [Co2Value]          DECIMAL(18,2)    NOT NULL DEFAULT 0,
+    [NetValue]          DECIMAL(18,2)    NOT NULL DEFAULT 0,
     [Explanation]       NVARCHAR(4000)   NULL,
     [MatchDetailsJson]  NVARCHAR(MAX)    NULL,
     [CreatedAt]         DATETIME2        NOT NULL DEFAULT SYSUTCDATETIME(),
