@@ -75,7 +75,7 @@ BEGIN
     DECLARE @Id UNIQUEIDENTIFIER = NEWID();
     DECLARE @Now DATETIME2 = SYSUTCDATETIME();
 
-    INSERT INTO [dbo].[Returns]
+    INSERT INTO [dbo].[ImageValidationResults]
         ([Id], [ProductId], [ProductName], [Category], [ReturnReason],
          [Condition], [Eligibility], [Confidence], [Location], [ReturnDate],
          [CreatedAt], [IsDeleted])
@@ -142,7 +142,7 @@ BEGIN
         r.[Condition],
         r.[Eligibility]
     FROM [dbo].[InventoryPool] ip
-    INNER JOIN [dbo].[Returns] r ON r.[Id] = ip.[ReturnId] AND r.[IsDeleted] = 0
+    INNER JOIN [dbo].[ImageValidationResults] r ON r.[Id] = ip.[ReturnId] AND r.[IsDeleted] = 0
     WHERE ip.[IsDeleted] = 0
       AND ip.[Status] = 'Available'
       AND ip.[ProductId] = @ProductId
@@ -357,9 +357,9 @@ GO
 
 -- ======================================================================================================================================================
 
--- SP: Dashboard with REAL savings from persisted match results
--- Replaces estimated savings with actual agent-computed values
--- ============================================================
+---- SP: Dashboard with REAL savings from persisted match results
+---- Replaces estimated savings with actual agent-computed values
+---- ============================================================
 CREATE OR ALTER PROCEDURE [dbo].[usp_GetDashboardMetrics_v2]
     @FromDate DATETIME2 = NULL,
     @ToDate   DATETIME2 = NULL
@@ -384,5 +384,21 @@ BEGIN
     WHERE rr.[IsDeleted] = 0
       AND (@FromDate IS NULL OR rr.[CreatedAt] >= @FromDate)
       AND (@ToDate   IS NULL OR rr.[CreatedAt] <= @ToDate);
+END
+GO
+
+--====================
+CREATE or Alter PROCEDURE [dbo].[usp_GetBuyersByHub]
+    @Hub NVARCHAR(10)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT [Name], [Zone], 
+           CAST([DistanceKm] AS NVARCHAR(10)) + ' km' AS [Distance],
+           [Delivery], [Score]
+    FROM [dbo].[Buyers]
+    WHERE [Hub] = @Hub
+    ORDER BY [Score] DESC;
 END
 GO

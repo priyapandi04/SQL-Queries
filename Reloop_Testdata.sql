@@ -367,24 +367,24 @@ VALUES
 ('60000000-0006-0001-0001-000000000015', 'ImageValidationAgent', 'Backpack strap torn. Zipper damaged. Not eligible.', 0.91, DATEADD(DAY,-55,@Now), DATEADD(DAY,-55,@Now), 0),
 -- MatchAgent recommendations
 ('60000000-0006-0001-0001-000000000016', 'MatchAgent', 'Local match found in Chennai. Nike Jacket demand score 78.5. Distance saved: 120km.', 0.92, DATEADD(DAY,-86,@Now), DATEADD(DAY,-86,@Now), 0),
-('60000000-0006-0001-0001-000000000017', 'MatchAgent', 'Matched Samsung Earbuds to Chennai buyer. High confidence. Cost saved: $12.50.', 0.95, DATEADD(DAY,-78,@Now), DATEADD(DAY,-78,@Now), 0),
+('60000000-0006-0001-0001-000000000017', 'MatchAgent', 'Matched Samsung Earbuds to Chennai buyer. High confidence. Cost saved: Rs.1,000.', 0.95, DATEADD(DAY,-78,@Now), DATEADD(DAY,-78,@Now), 0),
 ('60000000-0006-0001-0001-000000000018', 'MatchAgent', 'Levis Jeans matched locally. Demand strong in Chennai area. CO2 saved: 5.2kg.', 0.88, DATEADD(DAY,-73,@Now), DATEADD(DAY,-73,@Now), 0),
 ('60000000-0006-0001-0001-000000000019', 'MatchAgent', 'Nike Jacket matched in Bangalore. Score 89.6. Distance saved: 350km.', 0.89, DATEADD(DAY,-66,@Now), DATEADD(DAY,-66,@Now), 0),
-('60000000-0006-0001-0001-000000000020', 'MatchAgent', 'Apple AirPods instant match. Highest demand product in Bangalore. Cost saved: $45.', 0.97, DATEADD(DAY,-62,@Now), DATEADD(DAY,-62,@Now), 0),
+('60000000-0006-0001-0001-000000000020', 'MatchAgent', 'Apple AirPods instant match. Highest demand product in Bangalore. Cost saved: Rs.3,600.', 0.97, DATEADD(DAY,-62,@Now), DATEADD(DAY,-62,@Now), 0),
 ('60000000-0006-0001-0001-000000000021', 'MatchAgent', 'Puma T-Shirt matched. Category demand high in Bangalore area.', 0.91, DATEADD(DAY,-58,@Now), DATEADD(DAY,-58,@Now), 0),
 ('60000000-0006-0001-0001-000000000022', 'MatchAgent', 'Amazon Echo matched in Bangalore. Electronics demand surge detected.', 0.96, DATEADD(DAY,-52,@Now), DATEADD(DAY,-52,@Now), 0),
 ('60000000-0006-0001-0001-000000000023', 'MatchAgent', 'Nike Jacket matched Hyderabad. Distance saved: 200km. Score: 85.4.', 0.85, DATEADD(DAY,-50,@Now), DATEADD(DAY,-50,@Now), 0),
-('60000000-0006-0001-0001-000000000024', 'MatchAgent', 'AirPods matched instantly in Hyderabad. Demand score 90.5. Cost saved: $38.', 0.98, DATEADD(DAY,-46,@Now), DATEADD(DAY,-46,@Now), 0),
+('60000000-0006-0001-0001-000000000024', 'MatchAgent', 'AirPods matched instantly in Hyderabad. Demand score 90.5. Cost saved: Rs.3,000.', 0.98, DATEADD(DAY,-46,@Now), DATEADD(DAY,-46,@Now), 0),
 ('60000000-0006-0001-0001-000000000025', 'MatchAgent', 'Logitech Keyboard matched. Hyderabad IT corridor demand strong.', 0.87, DATEADD(DAY,-40,@Now), DATEADD(DAY,-40,@Now), 0),
 ('60000000-0006-0001-0001-000000000026', 'MatchAgent', 'Nike Jacket matched Mumbai. Premium area demand. Distance: 450km saved.', 0.93, DATEADD(DAY,-34,@Now), DATEADD(DAY,-34,@Now), 0),
 ('60000000-0006-0001-0001-000000000027', 'MatchAgent', 'AirPods matched Mumbai buyer. Highest score 99.1. CO2 saved: 12.8kg.', 0.99, DATEADD(DAY,-30,@Now), DATEADD(DAY,-30,@Now), 0),
-('60000000-0006-0001-0001-000000000028', 'MatchAgent', 'Levis Jeans matched Mumbai. Strong apparel demand. Cost saved: $28.', 0.90, DATEADD(DAY,-24,@Now), DATEADD(DAY,-24,@Now), 0),
+('60000000-0006-0001-0001-000000000028', 'MatchAgent', 'Levis Jeans matched Mumbai. Strong apparel demand. Cost saved: Rs.2,200.', 0.90, DATEADD(DAY,-24,@Now), DATEADD(DAY,-24,@Now), 0),
 ('60000000-0006-0001-0001-000000000029', 'MatchAgent', 'Dell Mouse matched Mumbai. Electronics pool healthy.', 0.76, DATEADD(DAY,-22,@Now), DATEADD(DAY,-22,@Now), 0),
 ('60000000-0006-0001-0001-000000000030', 'MatchAgent', 'Nike Jacket matched Delhi. Score 86.3. Distance saved: 680km.', 0.86, DATEADD(DAY,-18,@Now), DATEADD(DAY,-18,@Now), 0),
-('60000000-0006-0001-0001-000000000031', 'MatchAgent', 'AirPods matched Delhi NCR. Record demand. Cost saved: $42.', 0.98, DATEADD(DAY,-14,@Now), DATEADD(DAY,-14,@Now), 0),
+('60000000-0006-0001-0001-000000000031', 'MatchAgent', 'AirPods matched Delhi NCR. Record demand. Cost saved: Rs.3,400.', 0.98, DATEADD(DAY,-14,@Now), DATEADD(DAY,-14,@Now), 0),
 ('60000000-0006-0001-0001-000000000032', 'MatchAgent', 'Puma T-Shirt matched Delhi. Apparel category trending.', 0.91, DATEADD(DAY,-10,@Now), DATEADD(DAY,-10,@Now), 0),
 ('60000000-0006-0001-0001-000000000033', 'MatchAgent', 'Nike Jacket matched Pune. New market. Distance saved: 150km.', 0.94, DATEADD(DAY,-3,@Now), DATEADD(DAY,-3,@Now), 0),
-('60000000-0006-0001-0001-000000000034', 'MatchAgent', 'AirPods matched Pune IT hub. Score 97.4. Cost saved: $35.', 0.97, DATEADD(DAY,-2,@Now), DATEADD(DAY,-2,@Now), 0),
+('60000000-0006-0001-0001-000000000034', 'MatchAgent', 'AirPods matched Pune IT hub. Score 97.4. Cost saved: Rs.2,800.', 0.97, DATEADD(DAY,-2,@Now), DATEADD(DAY,-2,@Now), 0),
 ('60000000-0006-0001-0001-000000000035', 'MatchAgent', 'Dell Mouse matched Pune. Rapid turnaround. CO2 saved: 3.2kg.', 0.93, DATEADD(DAY,-1,@Now), DATEADD(DAY,-1,@Now), 0),
 -- RootCauseAgent recommendations
 ('60000000-0006-0001-0001-000000000036', 'RootCauseAgent', 'Pattern detected: Wrong Size accounts for 35% of Apparel returns in Chennai. Recommend size guide improvement.', 0.89, DATEADD(DAY,-80,@Now), DATEADD(DAY,-80,@Now), 0),
@@ -458,15 +458,15 @@ FROM [dbo].[InventoryPool] ip
 WHERE ip.[IsDeleted] = 0 AND ip.[Status] = 'Matched';
 
 -- Total Cost Saved (estimated: distance-based)
-SELECT 'Total Cost Saved ($)' AS Metric,
+SELECT 'Total Cost Saved (Rs.)' AS Metric,
 	ROUND(SUM(CASE
-		WHEN ip.[Location] = 'Delhi' THEN 42.0
-		WHEN ip.[Location] = 'Mumbai' THEN 35.0
-		WHEN ip.[Location] = 'Bangalore' THEN 28.0
-		WHEN ip.[Location] = 'Hyderabad' THEN 18.0
-		WHEN ip.[Location] = 'Chennai' THEN 12.5
-		WHEN ip.[Location] = 'Pune' THEN 15.0
-		ELSE 10.0
+		WHEN ip.[Location] = 'Delhi' THEN 3400.0
+		WHEN ip.[Location] = 'Mumbai' THEN 2800.0
+		WHEN ip.[Location] = 'Bangalore' THEN 2200.0
+		WHEN ip.[Location] = 'Hyderabad' THEN 1400.0
+		WHEN ip.[Location] = 'Chennai' THEN 1000.0
+		WHEN ip.[Location] = 'Pune' THEN 1200.0
+		ELSE 800.0
 	END), 2) AS [Value]
 FROM [dbo].[InventoryPool] ip
 WHERE ip.[IsDeleted] = 0 AND ip.[Status] = 'Matched';
@@ -512,3 +512,36 @@ PRINT '========================================';
 PRINT 'Verification Complete!';
 PRINT '========================================';
 GO
+
+
+INSERT INTO [dbo].[Buyers] (Hub, Name, Zone, DistanceKm, Delivery, Score) VALUES
+-- CHN
+('CHN', 'Arjun Sharma', 'T. Nagar, Chennai', 2.1, '2h 30min', 96),
+('CHN', 'Priya Krishnamurthy', 'Adyar, Chennai', 3.4, '3h 15min', 91),
+('CHN', 'Ravi Sundar', 'Velachery, Chennai', 5.2, '4h 00min', 87),
+('CHN', 'Meera Nair', 'Porur, Chennai', 7.8, '5h 30min', 82),
+('CHN', 'Karthik Rajan', 'Tambaram, Chennai', 9.1, '6h 00min', 78),
+-- BLR
+('BLR', 'Rohan Mehta', 'Indiranagar', 1.8, '2h 00min', 94),
+('BLR', 'Sneha Reddy', 'Koramangala', 3.1, '3h 00min', 88),
+('BLR', 'Vikram Nair', 'Whitefield', 6.2, '4h 30min', 83),
+('BLR', 'Anjali Singh', 'HSR Layout', 8.4, '5h 00min', 77),
+('BLR', 'Deepak Kumar', 'Electronic City', 11.2, '6h 30min', 71),
+-- MUM
+('MUM', 'Rahul Joshi', 'Bandra', 2.5, '2h 45min', 91),
+('MUM', 'Pooja Sharma', 'Andheri', 4.0, '3h 30min', 85),
+('MUM', 'Amit Patel', 'Powai', 7.1, '5h 00min', 79),
+('MUM', 'Kavita Desai', 'Thane', 9.3, '5h 45min', 74),
+('MUM', 'Suresh Iyer', 'Navi Mumbai', 12.0, '7h 00min', 68),
+-- DEL
+('DEL', 'Aditya Kapoor', 'Connaught Place', 3.2, '3h 15min', 86),
+('DEL', 'Neha Gupta', 'Lajpat Nagar', 5.8, '4h 30min', 79),
+('DEL', 'Rajesh Verma', 'Dwarka', 9.0, '5h 30min', 71),
+('DEL', 'Sunita Chauhan', 'Noida', 11.5, '6h 15min', 65),
+('DEL', 'Manoj Tiwari', 'Gurgaon', 14.2, '7h 30min', 59),
+-- HYD
+('HYD', 'Srinivas Rao', 'Hitech City', 2.2, '2h 15min', 93),
+('HYD', 'Lakshmi Prasad', 'Banjara Hills', 4.5, '3h 30min', 86),
+('HYD', 'Venkat Reddy', 'Madhapur', 6.8, '4h 45min', 80),
+('HYD', 'Padma Rao', 'Secunderabad', 9.5, '5h 30min', 73),
+('HYD', 'Ramu Naidu', 'Kukatpally', 11.8, '6h 45min', 67);
